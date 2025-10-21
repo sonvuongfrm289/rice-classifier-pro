@@ -1,4 +1,0 @@
-[runner]
-# Yêu cầu Streamlit sử dụng Python 3.10 (hoặc 3.11)
-# Phiên bản 3.10.x thường tương thích tốt nhất với TensorFlow
-python_version = "3.10"
