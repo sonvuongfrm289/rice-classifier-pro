@@ -1,0 +1,2 @@
+Dự án này huấn luyện một mô hình **Convolutional Neural Network (CNN)** để **phân loại 10 loại gạo khác nhau** dựa trên ảnh chụp hạt gạo.  
+Model được huấn luyện bằng TensorFlow và lưu dưới dạng `.h5`.
