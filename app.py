@@ -31,16 +31,20 @@ def predict_image(image_file, model, class_names, img_size):
         
         img_array_expanded = img_array_expanded / 255.0 
 
-        predictions = model.predict(img_array_expanded)
+        predictions = model.predict(img_array_expanded)[0] # Lấy mảng xác suất 1D
         
-        predicted_class_index = np.argmax(predictions[0])
-        confidence = np.max(predictions[0])
+        predicted_class_index = np.argmax(predictions)
+        confidence = np.max(predictions)
+
+        # Lấy top 3 dự đoán
+        top_k_indices = np.argsort(predictions)[::-1][:3]
+        top_k_results = [(class_names[i], predictions[i]) for i in top_k_indices]
         
-        return class_names[predicted_class_index], confidence
+        return class_names[predicted_class_index], confidence, top_k_results
 
     except Exception as e:
         st.error(f"Lỗi trong quá trình xử lý ảnh hoặc dự đoán: {e}")
-        return "Lỗi xử lý", 0.0
+        return "Lỗi xử lý", 0.0, []
 
 model = load_rice_model()
 
@@ -58,7 +62,8 @@ if model is not None:
         if st.button('Phân Loại Hạt Gạo'):
             with st.spinner('Đang xử lý và dự đoán...'):
                 
-                predicted_name, confidence = predict_image(uploaded_file, model, CLASS_NAMES, IMAGE_SIZE)
+                # Cập nhật: Hàm predict_image giờ trả về top_k_results
+                predicted_name, confidence, top_k_results = predict_image(uploaded_file, model, CLASS_NAMES, IMAGE_SIZE)
                 
                 if predicted_name != "Lỗi xử lý":
                     st.success(f"✅ Dự đoán Thành Công!")
@@ -66,5 +71,10 @@ if model is not None:
                     st.markdown(f"**Kết quả Phân loại:** <span style='color:green; font-size: 20px;'>{predicted_name}</span>", unsafe_allow_html=True)
                     st.markdown(f"**Độ tin cậy:** **{confidence:.2%}**")
                     st.markdown("---")
+                    
+                    # HIỂN THỊ CÁC KẾT QUẢ XÁC SUẤT CAO KHÁC
+                    st.subheader("Phân tích Xác suất:")
+                    for name, conf in top_k_results:
+                        st.text(f"- {name}: {conf:.2%}")
 else:
-    st.error("Ứng dụng không thể khởi động vì mô hình không được tải. Vui lòng kiểm tra file rice_model_fast.h5 và log deploy.")
+    st.error("Ứng dụng không thể khởi động vì mô hình không được tải. Vui lòng kiểm tra file rice_model_fast.h5 và log  s deploy.")
